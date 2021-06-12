@@ -274,20 +274,20 @@ public class register extends AppCompatActivity {
 
             File imageFile;
             File imageFile1;
-            try {
-                imageFile = new File(getImagePath(selectedImage));
-                imageFile1 = new File(getImagePath(selectedImage1));
-
-            }catch (Exception e){
-                Toast.makeText(register.this, "Please pick an Image From Right Place, maybe Gallery or File Explorer so that we can get its path."+e.getMessage(), Toast.LENGTH_LONG).show();
-                return;
-            }
+//            try {
+//                imageFile = new File(getImagePath(selectedImage));
+//                imageFile1 = new File(getImagePath(selectedImage1));
+//
+//            }catch (Exception e){
+//                Toast.makeText(register.this, "Please pick an Image From Right Place, maybe Gallery or File Explorer so that we can get its path."+e.getMessage(), Toast.LENGTH_LONG).show();
+//                return;
+//            }
 
             System.out.println("Username : "+us.getUsername());
             System.out.println("Email : "+us.getEmail());
             System.out.println("Pass : "+us.getPass());
-            System.out.println("Imgae 1 : "+imageFile);
-            System.out.println("Imgae 2 : "+imageFile1);
+//            System.out.println("Imgae 1 : "+imageFile);
+//            System.out.println("Imgae 2 : "+imageFile1);
 
             Retrofit retrofit = NetworkClient.getRetrofit();
 
@@ -295,23 +295,24 @@ public class register extends AppCompatActivity {
             RequestBody email = RequestBody.create(MediaType.parse("text/plain"), us.getEmail());
             RequestBody pass = RequestBody.create(MediaType.parse("text/plain"), us.getPass());
 
-            RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), imageFile);
-            MultipartBody.Part parts = MultipartBody.Part.createFormData("foto_wajah", imageFile.getName(), requestBody);
-            RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), imgname);
-
-            RequestBody requestBody1 = RequestBody.create(MediaType.parse("*/*"), imageFile1);
-            MultipartBody.Part parts1 = MultipartBody.Part.createFormData("foto_ktp", imageFile1.getName(), requestBody1);
-            RequestBody filename1 = RequestBody.create(MediaType.parse("text/plain"), imgname);
+//            RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), imageFile);
+//            MultipartBody.Part parts = MultipartBody.Part.createFormData("foto_wajah", imageFile.getName(), requestBody);
+//            RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), imgname);
+//
+//            RequestBody requestBody1 = RequestBody.create(MediaType.parse("*/*"), imageFile1);
+//            MultipartBody.Part parts1 = MultipartBody.Part.createFormData("foto_ktp", imageFile1.getName(), requestBody1);
+//            RequestBody filename1 = RequestBody.create(MediaType.parse("text/plain"), imgname);
 
             UploadApis uploadApis = retrofit.create(UploadApis.class);
-            Call call = uploadApis.uploadImage(user,email,pass,parts,filename,parts1,filename1);
-            call.enqueue(new Callback<String>() {
+            Call call = uploadApis.uploadImage(user,email,pass);
+            call.enqueue(new Callback<Pesan>() {
                 @Override
-                public void onResponse(Call<String> call, Response<String> response) {
+                public void onResponse(Call<Pesan> call, Response<Pesan> response) {
                     if(response.isSuccessful()){
                         Log.d("mullllll", response.body().toString());
                         try {
                             JSONObject jsonObject = new JSONObject(response.body().toString());
+//                            Log.d("TESTING", jsonObject);
                             Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                             jsonObject.toString().replace("\\\\","");
                             if (jsonObject.getString("status").equals("true")) {
@@ -345,7 +346,7 @@ public class register extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call call, Throwable t) {
+                public void onFailure(Call<Pesan> call, Throwable t) {
                     Log.d(TAG, "onFailure: "+t.getLocalizedMessage());
                     if(call.isCanceled())
                     {
@@ -357,6 +358,7 @@ public class register extends AppCompatActivity {
                         System.out.println("Network Error : " + t.getLocalizedMessage());
                     }
                 }
+
             });
 
             /*String path = getImagePath(selectedImage);
