@@ -28,8 +28,8 @@
 		$folder1="images/foto_ktp/";
 		$url1 = "https://192.168.1.3/skripsi/images/foto_ktp/".$originalImgName1; //update path as per your directory structure 
 		*/
-		$url = "https://192.168.1.8/skripsi/images/foto_wajah/".$image; //update path as per your directory structure
-		$url1 = "https://192.168.1.8/skripsi/images/foto_ktp/".$image1; //update path as per your directory structure 
+		$url = "https://192.168.1.8/skripsi/images/foto_wajah/".$decodedImage; //update path as per your directory structure
+		$url1 = "https://192.168.1.8/skripsi/images/foto_ktp/".$decodedImage1; //update path as per your directory structure 
 		if(file_put_contents("images/foto_wajah/" . $name . ".jpg", $decodedImage)&&file_put_contents("images/foto_ktp/" . $name1 . ".jpg", $decodedImage1)){
         //if(move_uploaded_file($tempName,$folder.$originalImgName)&&move_uploaded_file($tempName1,$folder1.$originalImgName1)){
                 $query = "INSERT INTO foto_user (id, username, email, password, foto_wajah, foto_ktp, foto_baru) VALUES (null, '$username','$email','$pass','$url','$url1', null)";
