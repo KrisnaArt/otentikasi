@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkClient {
     private static Retrofit retrofit;
-    private static String BASE_URL = "http://192.168.1.3/skripsi/";
+    private static String BASE_URL = "http://192.168.1.8/skripsi/";
 
     public static Retrofit getRetrofit() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()

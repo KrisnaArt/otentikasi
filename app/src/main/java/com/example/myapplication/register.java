@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +22,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.androidnetworking.AndroidNetworking;
 
@@ -29,11 +29,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Calendar;
 
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -252,31 +252,26 @@ public class register extends AppCompatActivity {
         text_repassw.setText(null);
     }
 
-    public void startService() {
-        Intent serviceIntent = new Intent(this, service.class);
-        serviceIntent.putExtra("inputExtra", "Foreground Service Example in Android");
-        ContextCompat.startForegroundService(this, serviceIntent);
-    }
-    public void stopService() {
-        Intent serviceIntent = new Intent(this, service.class);
-        stopService(serviceIntent);
+    private String encodeUri(Bitmap bitmap){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        String image = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
+        return image;
     }
 
     public void addData() {
-        //startService();
         //if (validate()) {
-        String imgname = String.valueOf(Calendar.getInstance().getTimeInMillis());
             String UserName = text_user.getText().toString();
             String Email = text_email.getText().toString();
             String Password = text_passw.getText().toString();
+            String fotoWajah = encodeUri(bitmap);
+            String fotoKtp = encodeUri(bitmap1);
 
             user us = new user(UserName,Email, Password);
 
-            File imageFile;
-            File imageFile1;
             try {
-                imageFile = new File(getImagePath(selectedImage));
-                imageFile1 = new File(getImagePath(selectedImage1));
+                File imageFile = new File(getImagePath(selectedImage));
+                File imageFile1 = new File(getImagePath(selectedImage1));
 
             }catch (Exception e){
                 Toast.makeText(register.this, "Please pick an Image From Right Place, maybe Gallery or File Explorer so that we can get its path."+e.getMessage(), Toast.LENGTH_LONG).show();
@@ -286,39 +281,39 @@ public class register extends AppCompatActivity {
             System.out.println("Username : "+us.getUsername());
             System.out.println("Email : "+us.getEmail());
             System.out.println("Pass : "+us.getPass());
-            System.out.println("Imgae 1 : "+imageFile);
-            System.out.println("Imgae 2 : "+imageFile1);
+            //System.out.println("Imgae 1 : "+imageFile);
+            //System.out.println("Imgae 2 : "+imageFile1);
 
             Retrofit retrofit = NetworkClient.getRetrofit();
 
             RequestBody user = RequestBody.create(MediaType.parse("text/plain"), us.getUsername());
             RequestBody email = RequestBody.create(MediaType.parse("text/plain"), us.getEmail());
             RequestBody pass = RequestBody.create(MediaType.parse("text/plain"), us.getPass());
+            RequestBody foto_wajah = RequestBody.create(MediaType.parse("text/plain"), fotoWajah);
+            RequestBody foto_ktp = RequestBody.create(MediaType.parse("text/plain"), fotoKtp);
 
-            RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), imageFile);
-            MultipartBody.Part parts = MultipartBody.Part.createFormData("foto_wajah", imageFile.getName(), requestBody);
-            RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), imgname);
+            //RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), imageFile);
+            //MultipartBody.Part parts = MultipartBody.Part.createFormData("foto_wajah", imageFile.getName(), requestBody);
+            //RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), imgname);
 
-            RequestBody requestBody1 = RequestBody.create(MediaType.parse("*/*"), imageFile1);
-            MultipartBody.Part parts1 = MultipartBody.Part.createFormData("foto_ktp", imageFile1.getName(), requestBody1);
-            RequestBody filename1 = RequestBody.create(MediaType.parse("text/plain"), imgname);
+            //RequestBody requestBody1 = RequestBody.create(MediaType.parse("*/*"), imageFile1);
+            //MultipartBody.Part parts1 = MultipartBody.Part.createFormData("foto_ktp", imageFile1.getName(), requestBody1);
+            //RequestBody filename1 = RequestBody.create(MediaType.parse("text/plain"), imgname);
 
             UploadApis uploadApis = retrofit.create(UploadApis.class);
-            Call call = uploadApis.uploadImage(user,email,pass,parts,filename,parts1,filename1);
-            call.enqueue(new Callback<String>() {
+            Call call = uploadApis.uploadImage(user,email,pass,foto_wajah,foto_ktp);
+            call.enqueue(new Callback<Pesan>() {
                 @Override
-                public void onResponse(Call<String> call, Response<String> response) {
+                public void onResponse(Call<Pesan> call, Response<Pesan> response) {
                     if(response.isSuccessful()){
                         Log.d("mullllll", response.body().toString());
                         try {
                             JSONObject jsonObject = new JSONObject(response.body().toString());
+                            Log.d("TESTING", String.valueOf(jsonObject));
                             Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                             jsonObject.toString().replace("\\\\","");
                             if (jsonObject.getString("status").equals("true")) {
                                 JSONArray dataArray = jsonObject.getJSONArray("data");
-                                for (int i = 0; i < dataArray.length(); i++) {
-                                    JSONObject dataobj = dataArray.getJSONObject(i);
-                                }
                                 goToLogin();
                                 emptyInputEditText();
                             }
@@ -358,80 +353,6 @@ public class register extends AppCompatActivity {
                     }
                 }
             });
-
-            /*String path = getImagePath(selectedImage);
-            String path1 = getImagePath(selectedImage1);
-
-            try {
-
-                String uploadId = UUID.randomUUID().toString();
-                new MultipartUploadRequest(this, uploadId, DATA_UPLOAD_URL)
-                        .addFileToUpload(path, "foto_wajah")
-                        .addFileToUpload(path1, "foto_ktp")
-                        .addParameter("username", us.getUsername())
-                        .addParameter("email", us.getEmail())
-                        .addParameter("pass", us.getPass())
-                        .setNotificationConfig(new UploadNotificationConfig())
-                        .setMaxRetries(3)
-                        .startUpload();
-
-            } catch (Exception ex) {
-                System.out.println("Eror : " + ex.getMessage());
-
-            }
-            AndroidNetworking.upload(DATA_UPLOAD_URL)
-                    .addMultipartFile("foto_wajah",imageFile)
-                    .addMultipartFile("foto_ktp",imageFile1)
-                    .addMultipartParameter("username",us.getUsername())
-                    .addMultipartParameter("email",us.getEmail())
-                    .addMultipartParameter("pass",us.getPass())
-                    .setTag("MYSQL_UPLOAD")
-                    .setPriority(Priority.HIGH)
-                    .build()
-                    .setUploadProgressListener(new UploadProgressListener() {
-                        @Override
-                        public void onProgress(long bytesUploaded, long totalBytes) {
-                            System.out.println("byte : "+bytesUploaded);
-                        }
-                    })
-                    .getAsJSONObject(new JSONObjectRequestListener() {
-
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            System.out.println("respon :"+response.toString());
-                            if(response != null) {
-                                try{
-                                    //SHOW RESPONSE FROM SERVER
-                                    String responseString = response.get("message").toString();
-                                    Toast.makeText(register.this, "PHP SERVER RESPONSE : " + responseString, Toast.LENGTH_LONG).show();
-                                    emptyInputEditText();
-
-                                    if (responseString.equalsIgnoreCase("Success")) {
-                                        //RESET VIEWS
-                                        emptyInputEditText();
-                                        goToLogin();
-
-                                    } else {
-                                        Toast.makeText(register.this, "PHP WASN'T SUCCESSFUL. ", Toast.LENGTH_LONG).show();
-                                    }
-                                }catch(Exception e)
-                                {
-                                    e.printStackTrace();
-                                    Toast.makeText(register.this, "JSONException "+e.getMessage(), Toast.LENGTH_LONG).show();
-                                }
-                            }else{
-                                Toast.makeText(register.this, "NULL RESPONSE. ", Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onError(ANError error) {
-                            error.printStackTrace();
-                            Toast.makeText(register.this, "UNSUCCESSFUL :  ERROR IS : \n"+error.getMessage(), Toast.LENGTH_LONG).show();
-                            System.out.println("Error is : "+error.getMessage());
-                        }
-                    });*/
-        //}
     }
 
     @Override
