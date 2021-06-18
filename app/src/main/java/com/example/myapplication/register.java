@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Calendar;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -50,7 +51,6 @@ public class register extends AppCompatActivity {
     SharedPreferences sharedpreferences;
     public static final String mypreference = "mypref", Name = "nameKey", Email = "emailKey", TAG = register.class.getSimpleName();
     private static final int PICK_IMAGE_REQUEST = 9544,PICK_IMAGE_REQUEST1 = 9543;
-    //private static final String DATA_UPLOAD_URL="http://192.168.1.3/skripsi/index.php";
 
     // Permissions for accessing the storage
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -58,10 +58,6 @@ public class register extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-
-    private void initObjects() {
-        AndroidNetworking.initialize(this);
-    }
 
     class user{
         private String user, email, pass;
@@ -81,7 +77,6 @@ public class register extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(Intent.createChooser(intent, "Open Gallery"), PICK_IMAGE_REQUEST);
-
     }
 
     public void pick1() {
@@ -286,11 +281,11 @@ public class register extends AppCompatActivity {
 
             Retrofit retrofit = NetworkClient.getRetrofit();
 
-            RequestBody user = RequestBody.create(MediaType.parse("text/plain"), us.getUsername());
-            RequestBody email = RequestBody.create(MediaType.parse("text/plain"), us.getEmail());
-            RequestBody pass = RequestBody.create(MediaType.parse("text/plain"), us.getPass());
-            RequestBody foto_wajah = RequestBody.create(MediaType.parse("text/plain"), fotoWajah);
-            RequestBody foto_ktp = RequestBody.create(MediaType.parse("text/plain"), fotoKtp);
+            //String user = RequestBody.create(MediaType.parse("text/plain"), us.getUsername());
+            //RequestBody email = RequestBody.create(MediaType.parse("text/plain"), us.getEmail());
+            //RequestBody pass = RequestBody.create(MediaType.parse("text/plain"), us.getPass());
+            //RequestBody foto_wajah = RequestBody.create(MediaType.parse("text/plain"), fotoWajah);
+            //RequestBody foto_ktp = RequestBody.create(MediaType.parse("text/plain"), fotoKtp);
 
             //RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), imageFile);
             //MultipartBody.Part parts = MultipartBody.Part.createFormData("foto_wajah", imageFile.getName(), requestBody);
@@ -301,25 +296,27 @@ public class register extends AppCompatActivity {
             //RequestBody filename1 = RequestBody.create(MediaType.parse("text/plain"), imgname);
 
             UploadApis uploadApis = retrofit.create(UploadApis.class);
-            Call call = uploadApis.uploadImage(user,email,pass,foto_wajah,foto_ktp);
+            Call call = uploadApis.uploadImage(UserName,Email,Password,fotoWajah,fotoKtp);
             call.enqueue(new Callback<Pesan>() {
                 @Override
                 public void onResponse(Call<Pesan> call, Response<Pesan> response) {
                     if(response.isSuccessful()){
                         Log.d("mullllll", response.body().toString());
-                        try {
-                            JSONObject jsonObject = new JSONObject(response.body().toString());
+                        Pesan resp = response.body();
+                        List<User> listUser = resp.getItems();
+                        for(User user : listUser){
+                            Log.d("USER",user.getEmail());
+                        }
+                        goToLogin();
+                        emptyInputEditText();
+                            /*JSONObject jsonObject = new JSONObject(response.body().toString());
                             Log.d("TESTING", String.valueOf(jsonObject));
                             Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                             jsonObject.toString().replace("\\\\","");
                             if (jsonObject.getString("status").equals("true")) {
                                 JSONArray dataArray = jsonObject.getJSONArray("data");
-                                goToLogin();
-                                emptyInputEditText();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+
+                            }*/
                     }
                     else {
                         System.out.println("Gagal");

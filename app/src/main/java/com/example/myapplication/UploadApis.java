@@ -8,10 +8,10 @@ import retrofit2.http.POST;
 
 public interface UploadApis {
     @FormUrlEncoded
-    @POST("uploadfile.php")
-    Call<Pesan>  uploadImage(@Field("username") RequestBody user,
-                             @Field("email") RequestBody email,
-                             @Field("password") RequestBody pass,
-                             @Field("foto_wajah") RequestBody foto_wajah,
-                             @Field("foto_ktp") RequestBody foto_ktp);
+    @POST("uploadfile1.php")
+    Call<Pesan>  uploadImage(@Field("username") String user,
+                             @Field("email") String email,
+                             @Field("password") String pass,
+                             @Field("foto_wajah") String foto_wajah,
+                             @Field("foto_ktp") String foto_ktp);
 }
