@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#1a936f"
-    tools:context=".CameraActivity">
+    tools:context=".Handler.CameraActivity">
 
     <TextureView
         android:id="@+id/view_finder"

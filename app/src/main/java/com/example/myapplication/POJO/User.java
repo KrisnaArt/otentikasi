@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.POJO;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -23,6 +23,10 @@ public class User {
     @SerializedName("foto_ktp")
     @Expose
     private String foto_ktp;
+
+    @SerializedName("foto_baru")
+    @Expose
+    private String foto_baru;
 
     public String getId() {
         return id;
@@ -62,6 +66,14 @@ public class User {
 
     public void setFoto_ktp(String foto_ktp) {
         this.foto_ktp = foto_ktp;
+    }
+
+    public String getFoto_baru() {
+        return foto_baru;
+    }
+
+    public void setFoto_baru(String foto_baru) {
+        this.foto_baru = foto_baru;
     }
 
 }

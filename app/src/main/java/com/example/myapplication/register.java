@@ -8,12 +8,15 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -23,34 +26,33 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.androidnetworking.AndroidNetworking;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.myapplication.Network.NetworkClient;
+import com.example.myapplication.Network.UploadApis;
+import com.example.myapplication.POJO.Pesan;
+import com.example.myapplication.POJO.User;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class register extends AppCompatActivity {
-    private Button btn_reg, btn_up_foto, btn_up_video;
+    private Button btn_reg, btn_up_foto;
     private EditText text_user, text_email, text_repassw, text_passw;
-    private TextView text_foto, text_video;
-    private Uri selectedImage, selectedImage1;
-    private Bitmap bitmap, bitmap1;
-    String part_image;
+    private TextView text_foto;
+    private Uri selectedImage;
+    private Bitmap bitmap;
+    private String part_image, address;
     SharedPreferences sharedpreferences;
     public static final String mypreference = "mypref", Name = "nameKey", Email = "emailKey", TAG = register.class.getSimpleName();
-    private static final int PICK_IMAGE_REQUEST = 9544,PICK_IMAGE_REQUEST1 = 9543;
+    private static final int PICK_IMAGE_REQUEST = 9544;
 
     // Permissions for accessing the storage
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -59,16 +61,26 @@ public class register extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    class user{
+    class user {
         private String user, email, pass;
+
         public user(String username, String email, String pass) {
             this.user = username;
             this.email = email;
             this.pass = pass;
         }
-        public String getUsername() {return user;}
-        public String getEmail() {return email;}
-        public String getPass() {return pass;}
+
+        public String getUsername() {
+            return user;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public String getPass() {
+            return pass;
+        }
     }
 
     // Method for starting the activity for selecting image from phone storage
@@ -76,14 +88,7 @@ public class register extends AppCompatActivity {
         verifyStoragePermissions(register.this);
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Open Gallery"), PICK_IMAGE_REQUEST);
-    }
-
-    public void pick1() {
-        verifyStoragePermissions(register.this);
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Open Gallery"), PICK_IMAGE_REQUEST1);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
     @Override
@@ -95,10 +100,10 @@ public class register extends AppCompatActivity {
                 selectedImage = data.getData();                                                         // Get the image file URI
                 String[] imageProjection = {MediaStore.Images.Media.DATA};
                 Cursor cursor = getContentResolver().query(selectedImage, imageProjection, null, null, null);
-                if(cursor != null) {
+                if (cursor != null) {
                     cursor.moveToFirst();
                     int indexImage = cursor.getColumnIndex(imageProjection[0]);
-                    try{
+                    try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                         part_image = cursor.getString(indexImage);
                         int cut = part_image.lastIndexOf('/');
@@ -107,28 +112,7 @@ public class register extends AppCompatActivity {
                         }
                         text_foto.setText(part_image);
                     } catch (Exception e) {
-                        Toast.makeText(register.this, "Please pick an Image From Right Place, maybe Gallery or File Explorer so that we can get its path."+e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-        } else if(requestCode == PICK_IMAGE_REQUEST1){
-            if (resultCode == RESULT_OK) {
-                selectedImage1 = data.getData();                                                         // Get the image file URI
-                String[] imageProjection = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getContentResolver().query(selectedImage1, imageProjection, null, null, null);
-                if(cursor != null) {
-                    cursor.moveToFirst();
-                    int indexImage = cursor.getColumnIndex(imageProjection[0]);
-                    try{
-                        bitmap1 = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage1);
-                        part_image = cursor.getString(indexImage);
-                        int cut = part_image.lastIndexOf('/');
-                        if (cut != -1) {
-                            part_image = part_image.substring(cut + 1);
-                        }
-                        text_video.setText(part_image);
-                    } catch (Exception e) {
-                        Toast.makeText(register.this, "Please pick an Image From Right Place, maybe Gallery or File Explorer so that we can get its path."+e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(register.this, "Please pick an Image From Right Place, maybe Gallery or File Explorer so that we can get its path." + e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -147,23 +131,6 @@ public class register extends AppCompatActivity {
                     REQUEST_EXTERNAL_STORAGE
             );
         }
-    }
-
-    /*
-    Get Image Path propvided its  android.net.Uri
-     */
-    public String getImagePath(Uri uri)
-    {
-        String[] projection={MediaStore.Images.Media.DATA};
-        Cursor cursor=getContentResolver().query(uri,projection,null,null,null);
-        if(cursor == null){
-            return null;
-        }
-        int columnIndex= cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String s=cursor.getString(columnIndex);
-        cursor.close();
-        return s;
     }
 
     public void goToLogin() {
@@ -228,7 +195,7 @@ public class register extends AppCompatActivity {
             }
         }
 
-        if (nama_foto.isEmpty()){
+        if (nama_foto.isEmpty()) {
             valid = false;
             text_repassw.setError("Pilih Gambar");
         } else {
@@ -239,7 +206,6 @@ public class register extends AppCompatActivity {
         return valid;
     }
 
-
     private void emptyInputEditText() {
         text_user.setText(null);
         text_email.setText(null);
@@ -247,7 +213,7 @@ public class register extends AppCompatActivity {
         text_repassw.setText(null);
     }
 
-    private String encodeUri(Bitmap bitmap){
+    private String encodeUri(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         String image = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
@@ -255,101 +221,80 @@ public class register extends AppCompatActivity {
     }
 
     public void addData() {
-        //if (validate()) {
+        if (validate()) {
             String UserName = text_user.getText().toString();
             String Email = text_email.getText().toString();
             String Password = text_passw.getText().toString();
-            String fotoWajah = encodeUri(bitmap);
-            String fotoKtp = encodeUri(bitmap1);
+            Bitmap foto = ImageCompression.reduceBitmapSize(bitmap, 307200);
+            String fotoWajah = encodeUri(foto);
 
-            user us = new user(UserName,Email, Password);
+            user us = new user(UserName, Email, Password);
 
-            try {
-                File imageFile = new File(getImagePath(selectedImage));
-                File imageFile1 = new File(getImagePath(selectedImage1));
-
-            }catch (Exception e){
-                Toast.makeText(register.this, "Please pick an Image From Right Place, maybe Gallery or File Explorer so that we can get its path."+e.getMessage(), Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            System.out.println("Username : "+us.getUsername());
-            System.out.println("Email : "+us.getEmail());
-            System.out.println("Pass : "+us.getPass());
-            //System.out.println("Imgae 1 : "+imageFile);
-            //System.out.println("Imgae 2 : "+imageFile1);
+            String user = us.getUsername();
+            String email = us.getEmail();
+            String pass = us.getPass();
 
             Retrofit retrofit = NetworkClient.getRetrofit();
 
-            //String user = RequestBody.create(MediaType.parse("text/plain"), us.getUsername());
-            //RequestBody email = RequestBody.create(MediaType.parse("text/plain"), us.getEmail());
-            //RequestBody pass = RequestBody.create(MediaType.parse("text/plain"), us.getPass());
-            //RequestBody foto_wajah = RequestBody.create(MediaType.parse("text/plain"), fotoWajah);
-            //RequestBody foto_ktp = RequestBody.create(MediaType.parse("text/plain"), fotoKtp);
-
-            //RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), imageFile);
-            //MultipartBody.Part parts = MultipartBody.Part.createFormData("foto_wajah", imageFile.getName(), requestBody);
-            //RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), imgname);
-
-            //RequestBody requestBody1 = RequestBody.create(MediaType.parse("*/*"), imageFile1);
-            //MultipartBody.Part parts1 = MultipartBody.Part.createFormData("foto_ktp", imageFile1.getName(), requestBody1);
-            //RequestBody filename1 = RequestBody.create(MediaType.parse("text/plain"), imgname);
-
             UploadApis uploadApis = retrofit.create(UploadApis.class);
-            Call call = uploadApis.uploadImage(UserName,Email,Password,fotoWajah,fotoKtp);
+
+            getLocation();
+
+            Call<Pesan> call = uploadApis.uploadImage(user, email, pass, fotoWajah, address);
             call.enqueue(new Callback<Pesan>() {
                 @Override
                 public void onResponse(Call<Pesan> call, Response<Pesan> response) {
-                    if(response.isSuccessful()){
+                    if (response.isSuccessful()) {
                         Log.d("mullllll", response.body().toString());
                         Pesan resp = response.body();
-                        List<User> listUser = resp.getItems();
-                        for(User user : listUser){
-                            Log.d("USER",user.getEmail());
+                        if (resp.getMessage().equalsIgnoreCase("oke4")) {
+                            goToLogin();
+                            emptyInputEditText();
                         }
-                        goToLogin();
-                        emptyInputEditText();
-                            /*JSONObject jsonObject = new JSONObject(response.body().toString());
-                            Log.d("TESTING", String.valueOf(jsonObject));
-                            Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                            jsonObject.toString().replace("\\\\","");
-                            if (jsonObject.getString("status").equals("true")) {
-                                JSONArray dataArray = jsonObject.getJSONArray("data");
+                    } else {
 
-                            }*/
-                    }
-                    else {
-                        System.out.println("Gagal");
-/*
-                        try {
-                            JSONObject jObjError = new JSONObject(response.errorBody().string());
-                            Toast.makeText(this, jObjError, Toast.LENGTH_LONG).show();
-                        } catch (JSONException | IOException e) {
-                            e.printStackTrace();
-                        }
-                        ResponseBody errorBody = response.errorBody();
-                        Gson gson = new Gson();
-                        Response errorResponse = gson.fromJson(errorBody.toString(), Response.class);
-                        Snackbar.make(findViewById(R.id.content), errorResponse.message(),Snackbar.LENGTH_SHORT).show();
-
-*/
                     }
                 }
 
                 @Override
                 public void onFailure(Call call, Throwable t) {
-                    Log.d(TAG, "onFailure: "+t.getLocalizedMessage());
-                    if(call.isCanceled())
-                    {
+                    Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
+                    if (call.isCanceled()) {
                         System.out.println("Call was cancelled forcefully");
-                    }
-                    else
-                    {
+                    } else {
                         //Generic error handling
                         System.out.println("Network Error : " + t.getLocalizedMessage());
                     }
                 }
             });
+        }
+    }
+
+    public void getLocation() {
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            double longitude = location.getLongitude();
+            double latitude = location.getLatitude();
+
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            System.out.println(addresses);
+            address = addresses.get(0).getAddressLine(0);
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -359,41 +304,22 @@ public class register extends AppCompatActivity {
 
         btn_reg = findViewById(R.id.btn_register);
         btn_up_foto = findViewById(R.id.btn_input);
-        btn_up_video = findViewById(R.id.btn_input1);
         text_user = findViewById(R.id.username);
         text_email = findViewById(R.id.email);
         text_passw = findViewById(R.id.pass);
         text_repassw = findViewById(R.id.passCopy);
         text_foto = findViewById(R.id.text_poto);
-        text_video = findViewById(R.id.text_video);
         sharedpreferences = getSharedPreferences(mypreference, Context.MODE_PRIVATE);
         if (sharedpreferences.contains(Name)) {
-            text_user.setText(sharedpreferences.getString(Name, ""));
+            text_user.setText(sharedpreferences.getString(Name, " "));
         }
         if (sharedpreferences.contains(Email)) {
-            text_email.setText(sharedpreferences.getString(Email, ""));
+            text_email.setText(sharedpreferences.getString(Email, " "));
         }
 
-        //initObjects();
+        emptyInputEditText();
 
-        btn_up_foto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pick();
-            }
-        });
-
-        btn_up_video.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pick1();
-            }
-        });
-        btn_reg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addData();
-            }
-        });
+        btn_up_foto.setOnClickListener(v -> pick());
+        btn_reg.setOnClickListener(v -> addData());
     }
 }

@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.Network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,11 +11,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkClient {
     private static Retrofit retrofit;
-    private static String BASE_URL = "http://192.168.1.8/skripsi/";
+    private static String BASE_URL = "http://192.168.173.1:5000/";
 
     public static Retrofit getRetrofit() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(15, TimeUnit.SECONDS)
                 .build();
         if (retrofit == null) {
             Gson gson = new GsonBuilder()
