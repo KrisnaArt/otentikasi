@@ -26,15 +26,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.myapplication.Handler.CameraActivity;
+import com.example.myapplication.Handler.ImageCompression;
 import com.example.myapplication.Network.NetworkClient;
 import com.example.myapplication.Network.UploadApis;
 import com.example.myapplication.POJO.Pesan;
-import com.example.myapplication.POJO.User;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,6 +44,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class register extends AppCompatActivity {
+    private final AppCompatActivity activity = register.this;
     private Button btn_reg, btn_up_foto;
     private EditText text_user, text_email, text_repassw, text_passw;
     private TextView text_foto;
@@ -225,8 +226,8 @@ public class register extends AppCompatActivity {
             String UserName = text_user.getText().toString();
             String Email = text_email.getText().toString();
             String Password = text_passw.getText().toString();
-            Bitmap foto = ImageCompression.reduceBitmapSize(bitmap, 307200);
-            String fotoWajah = encodeUri(foto);
+            String foto = getBitmap(text_foto.getText().toString());
+            //String fotoWajah = encodeUri(foto);
 
             user us = new user(UserName, Email, Password);
 
@@ -237,10 +238,13 @@ public class register extends AppCompatActivity {
             Retrofit retrofit = NetworkClient.getRetrofit();
 
             UploadApis uploadApis = retrofit.create(UploadApis.class);
-
-            getLocation();
-
-            Call<Pesan> call = uploadApis.uploadImage(user, email, pass, fotoWajah, address);
+            if(ActivityCompat.checkSelfPermission(register.this,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
+                getLocation();
+            }
+            else{
+                ActivityCompat.requestPermissions(register.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},44);
+            }
+            Call<Pesan> call = uploadApis.uploadImage(user, email, pass, foto, address);
             call.enqueue(new Callback<Pesan>() {
                 @Override
                 public void onResponse(Call<Pesan> call, Response<Pesan> response) {
@@ -284,18 +288,41 @@ public class register extends AppCompatActivity {
                 return;
             }
             Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            double longitude = location.getLongitude();
-            double latitude = location.getLatitude();
 
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            System.out.println(addresses);
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            System.out.println(addresses.get(0).getAddressLine(0));
             address = addresses.get(0).getAddressLine(0);
         }
         catch (IOException e){
             e.printStackTrace();
         }
     }
+
+    public void gotoCamera(){
+        Intent i = new Intent(activity, CameraActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("kelas","register");
+        bundle.putString("nama",text_user.getText().toString());
+        bundle.putString("email",text_email.getText().toString());
+        bundle.putString("password",text_passw.getText().toString());
+        i.putExtras(bundle);
+        startActivity(i);
+    }
+
+    public String getBitmap(String a){
+        String fotoBaru = "";
+        try {
+            Uri selectedImage = Uri.fromFile(new File(a));
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+            Bitmap foto = ImageCompression.reduceBitmapSize(bitmap, 40000);
+            fotoBaru = encodeUri(foto);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fotoBaru;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -309,6 +336,9 @@ public class register extends AppCompatActivity {
         text_passw = findViewById(R.id.pass);
         text_repassw = findViewById(R.id.passCopy);
         text_foto = findViewById(R.id.text_poto);
+
+        //data d = new data();
+
         sharedpreferences = getSharedPreferences(mypreference, Context.MODE_PRIVATE);
         if (sharedpreferences.contains(Name)) {
             text_user.setText(sharedpreferences.getString(Name, " "));
@@ -319,7 +349,10 @@ public class register extends AppCompatActivity {
 
         emptyInputEditText();
 
-        btn_up_foto.setOnClickListener(v -> pick());
-        btn_reg.setOnClickListener(v -> addData());
+        /*btn_up_foto.setOnClickListener(v -> gotoCamera());
+        text_foto.setText(d.getText());
+        System.out.println("tes =" + d.getText());
+        btn_reg.setOnClickListener(v -> addData());*/
+        btn_reg.setOnClickListener(v -> gotoCamera());
     }
 }

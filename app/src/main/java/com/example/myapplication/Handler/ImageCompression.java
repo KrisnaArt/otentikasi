@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.Handler;
 
 import android.graphics.Bitmap;
 import android.util.Log;

@@ -67,6 +67,7 @@ public class login extends AppCompatActivity {
                     if(resp.getMessage().equals("oke")){
                         Intent i = new Intent(activity, CameraActivity.class);
                         Bundle bundle = new Bundle();
+                        bundle.putString("kelas","login");
                         bundle.putString("nama",Username);
                         i.putExtras(bundle);
                         activity.finish();
