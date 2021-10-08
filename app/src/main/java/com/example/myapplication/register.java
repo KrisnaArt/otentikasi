@@ -62,7 +62,7 @@ public class register extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    class user {
+    /*class user {
         private String user, email, pass;
 
         public user(String username, String email, String pass) {
@@ -138,7 +138,7 @@ public class register extends AppCompatActivity {
         Intent i = new Intent(this, login.class);
         this.finish();
         startActivity(i);
-    }
+    }*/
 
     public boolean validate() {
         boolean valid = false;
@@ -221,7 +221,7 @@ public class register extends AppCompatActivity {
         return image;
     }
 
-    public void addData() {
+    /*public void addData() {
         if (validate()) {
             String UserName = text_user.getText().toString();
             String Email = text_email.getText().toString();
@@ -297,7 +297,7 @@ public class register extends AppCompatActivity {
         catch (IOException e){
             e.printStackTrace();
         }
-    }
+    }*/
 
     public void gotoCamera(){
         Intent i = new Intent(activity, CameraActivity.class);
@@ -310,7 +310,7 @@ public class register extends AppCompatActivity {
         startActivity(i);
     }
 
-    public String getBitmap(String a){
+    /*public String getBitmap(String a){
         String fotoBaru = "";
         try {
             Uri selectedImage = Uri.fromFile(new File(a));
@@ -321,7 +321,7 @@ public class register extends AppCompatActivity {
             e.printStackTrace();
         }
         return fotoBaru;
-    }
+    }*/
 
 
     @Override
@@ -330,12 +330,10 @@ public class register extends AppCompatActivity {
         setContentView(R.layout.register_page);
 
         btn_reg = findViewById(R.id.btn_register);
-        btn_up_foto = findViewById(R.id.btn_input);
         text_user = findViewById(R.id.username);
         text_email = findViewById(R.id.email);
         text_passw = findViewById(R.id.pass);
         text_repassw = findViewById(R.id.passCopy);
-        text_foto = findViewById(R.id.text_poto);
 
         //data d = new data();
 
@@ -349,10 +347,6 @@ public class register extends AppCompatActivity {
 
         emptyInputEditText();
 
-        /*btn_up_foto.setOnClickListener(v -> gotoCamera());
-        text_foto.setText(d.getText());
-        System.out.println("tes =" + d.getText());
-        btn_reg.setOnClickListener(v -> addData());*/
         btn_reg.setOnClickListener(v -> gotoCamera());
     }
 }

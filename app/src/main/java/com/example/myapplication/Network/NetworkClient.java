@@ -11,11 +11,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkClient {
     private static Retrofit retrofit;
-    private static String BASE_URL = "http://192.168.173.1:5000/";
+    private static String BASE_URL = "http://192.168.1.4:5000/";
 
     public static Retrofit getRetrofit() {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .build();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
         if (retrofit == null) {
             Gson gson = new GsonBuilder()
                     .setLenient()

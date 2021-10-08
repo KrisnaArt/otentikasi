@@ -355,7 +355,7 @@ public class CameraActivity extends AppCompatActivity {
                 Bitmap foto = ImageCompression.reduceBitmapSize(bitmap, 40000);
                 fotoBaru = encodeUri(foto);
             }else{
-                Bitmap foto = ImageCompression.reduceBitmapSize(bitmap, 160000);
+                Bitmap foto = ImageCompression.reduceBitmapSize(bitmap, 40000);
                 fotoBaru = encodeUri(foto);
             }
 
