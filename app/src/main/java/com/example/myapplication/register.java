@@ -48,19 +48,19 @@ public class register extends AppCompatActivity {
     private Button btn_reg, btn_up_foto;
     private EditText text_user, text_email, text_repassw, text_passw;
     private TextView text_foto;
-    private Uri selectedImage;
+    /*private Uri selectedImage;
     private Bitmap bitmap;
-    private String part_image, address;
+    private String part_image, address;*/
     SharedPreferences sharedpreferences;
     public static final String mypreference = "mypref", Name = "nameKey", Email = "emailKey", TAG = register.class.getSimpleName();
-    private static final int PICK_IMAGE_REQUEST = 9544;
+    //private static final int PICK_IMAGE_REQUEST = 9544;
 
     // Permissions for accessing the storage
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
+    //private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    /*private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
+    };*/
 
     /*class user {
         private String user, email, pass;
@@ -214,14 +214,14 @@ public class register extends AppCompatActivity {
         text_repassw.setText(null);
     }
 
-    private String encodeUri(Bitmap bitmap) {
+    /*private String encodeUri(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         String image = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
         return image;
     }
 
-    /*public void addData() {
+    public void addData() {
         if (validate()) {
             String UserName = text_user.getText().toString();
             String Email = text_email.getText().toString();
@@ -308,6 +308,8 @@ public class register extends AppCompatActivity {
         bundle.putString("password",text_passw.getText().toString());
         i.putExtras(bundle);
         startActivity(i);
+        activity.finish();
+        emptyInputEditText();
     }
 
     /*public String getBitmap(String a){

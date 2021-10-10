@@ -61,7 +61,7 @@ import retrofit2.Retrofit;
 public class CameraActivity extends AppCompatActivity {
     private int REQUEST_CODE_PERMISSIONS = 101;
     private String username, address, kelas, email, password;
-    public String pat;
+    //public String pat;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
     public static final String TAG = CameraActivity.class.getSimpleName();
     TextureView textureView;
@@ -259,7 +259,7 @@ public class CameraActivity extends AppCompatActivity {
                         Pesan resp = response.body();
                         if (resp.getMessage().equalsIgnoreCase("oke4")) {
                             loadingDialog.dismissDialog();
-                            goToMain();
+                            goToMain(b);
                         }
                     } else {
                         loadingDialog.dismissDialog();
@@ -280,8 +280,11 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    public void goToMain() {
+    public void goToMain(String a) {
         Intent i = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("nama",a);
+        i.putExtras(bundle);
         this.finish();
         startActivity(i);
     }

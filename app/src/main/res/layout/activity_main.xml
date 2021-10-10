@@ -8,6 +8,7 @@
     android:background="@color/colorBg">
 
     <TextView
+        android:id="@+id/text_masuk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
@@ -15,5 +16,19 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_shape_capsule"
+        android:padding="8dp"
+        android:text="Log Out"
+        android:textColor="@drawable/btn_txt_selector"
+        android:layout_marginTop="@dimen/_30sdp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_masuk"
+        android:layout_centerHorizontal="true"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
