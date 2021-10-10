@@ -26,4 +26,8 @@ public interface UploadApis {
     @FormUrlEncoded
     Call<Pesan> login(@Field("username") String user,
                       @Field("password") String pass);
+
+    @POST("/logout")
+    @FormUrlEncoded
+    Call<Pesan> logout(@Field("username") String user);
 }
