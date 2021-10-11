@@ -38,12 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         user.setText("Halo, "+username);
 
-        btn_logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                update(username);
-            }
-        });
+        btn_logout.setOnClickListener(view -> update(username));
     }
 
     private void gotoLogin(){
@@ -67,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                         gotoLogin();
                     }
                 } else {
-
+                    System.out.println("gagal");
                 }
             }
 
