@@ -138,7 +138,7 @@ public class CameraActivity extends AppCompatActivity {
             File file = new File(Environment.getExternalStorageDirectory(),"skripsi");
             file.mkdirs();
             File file1 = new File(Environment.getExternalStorageDirectory(),a);
-
+            file1.mkdirs();
             if(file1.exists()){
                 String path = Environment.getExternalStorageDirectory() + "/skripsi/"+ a +"/" + System.currentTimeMillis() + ".jpg";
                 File file3 = new File(path);
