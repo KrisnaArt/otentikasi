@@ -135,25 +135,35 @@ public class CameraActivity extends AppCompatActivity {
             }else{
                 a = "detect";
             }
-            String path = Environment.getExternalStorageDirectory() + "/skripsi/"+ a +"/" + System.currentTimeMillis() + ".jpg";
-            File file = new File(path);
-            imgCap.takePicture(file, new ImageCapture.OnImageSavedListener() {
-                @Override
-                public void onImageSaved(@NonNull File file) {
-                    String msg = "Pic captured at " + file.getAbsolutePath();
-                    Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
-                    sendData(kelas,username, getBitmap(kelas, path));
-                }
+            File file = new File(Environment.getExternalStorageDirectory(),"skripsi");
+            file.mkdirs();
+            File file1 = new File(Environment.getExternalStorageDirectory(),a);
 
-                @Override
-                public void onError(@NonNull ImageCapture.UseCaseError useCaseError, @NonNull String message, @Nullable Throwable cause) {
-                    String msg = "Pic capture failed : " + message;
-                    Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
-                    if (cause != null) {
-                        cause.printStackTrace();
+            if(file1.exists()){
+                String path = Environment.getExternalStorageDirectory() + "/skripsi/"+ a +"/" + System.currentTimeMillis() + ".jpg";
+                File file3 = new File(path);
+
+                imgCap.takePicture(file3, new ImageCapture.OnImageSavedListener() {
+                    @Override
+                    public void onImageSaved(@NonNull File file) {
+                        String msg = "Pic captured at " + file3.getAbsolutePath();
+                        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+                        sendData(kelas,username, getBitmap(kelas, path));
                     }
-                }
-            });
+
+                    @Override
+                    public void onError(@NonNull ImageCapture.UseCaseError useCaseError, @NonNull String message, @Nullable Throwable cause) {
+                        String msg = "Pic capture failed : " + message;
+                        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+                        if (cause != null) {
+                            cause.printStackTrace();
+                        }
+                    }
+                });
+            }
+            else{
+                Toast.makeText(this,"Folder not found",Toast.LENGTH_SHORT).show();
+            }
         });
 
         //bind to lifecycle:
