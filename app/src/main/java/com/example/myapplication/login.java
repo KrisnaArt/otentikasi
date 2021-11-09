@@ -62,7 +62,7 @@ public class login extends AppCompatActivity {
             @Override
             public void onResponse(Call<Pesan> call, Response<Pesan> response) {
                 if (response.isSuccessful()) {
-                    Log.d("mullllll", response.body().toString());
+                    Log.d("mullllll", response.body().getMessage());
                     Pesan resp = response.body();
                     if(resp.getMessage().equals("oke")){
                         Intent i = new Intent(activity, CameraActivity.class);

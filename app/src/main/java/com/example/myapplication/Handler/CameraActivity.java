@@ -1,6 +1,7 @@
 package com.example.myapplication.Handler;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
@@ -235,11 +237,20 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Pesan> call, Response<Pesan> response) {
                     if (response.isSuccessful()) {
-                        Log.d("mullllll", response.body().toString());
+                        Log.d("mullllll", response.body().getMessage());
                         Pesan resp = response.body();
                         if (resp.getMessage().equalsIgnoreCase("oke4")) {
                             loadingDialog.dismissDialog();
                             goToLogin();
+                        }else{
+                            loadingDialog.dismissDialog();
+                            AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                            builder.setMessage(resp.getMessage());
+                            builder.setTitle("Alert !");
+                            builder.setCancelable(false);
+                            builder.setPositiveButton("Close", (dialog, which) -> finish());
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
                         }
                     } else {
                         loadingDialog.dismissDialog();
@@ -265,11 +276,20 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Pesan> call, Response<Pesan> response) {
                     if (response.isSuccessful()) {
-                        Log.d("mullllll", response.body().toString());
+                        Log.d("mullllll", response.body().getMessage());
                         Pesan resp = response.body();
                         if (resp.getMessage().equalsIgnoreCase("oke4")) {
                             loadingDialog.dismissDialog();
                             goToMain(b);
+                        }else{
+                            loadingDialog.dismissDialog();
+                            AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                            builder.setMessage(resp.getMessage());
+                            builder.setTitle("Alert !");
+                            builder.setCancelable(false);
+                            builder.setPositiveButton("Close", (dialog, which) -> finish());
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
                         }
                     } else {
                         loadingDialog.dismissDialog();
