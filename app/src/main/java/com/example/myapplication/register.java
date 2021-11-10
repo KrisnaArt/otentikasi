@@ -45,10 +45,10 @@ import retrofit2.Retrofit;
 
 public class register extends AppCompatActivity {
     private final AppCompatActivity activity = register.this;
-    private Button btn_reg, btn_up_foto;
+    private Button btn_reg;
     private EditText text_user, text_email, text_repassw, text_passw;
-    private TextView text_foto;
-    /*private Uri selectedImage;
+    /*private TextView text_foto, btn_up_foto;
+    private Uri selectedImage;
     private Bitmap bitmap;
     private String part_image, address;*/
     SharedPreferences sharedpreferences;
@@ -147,7 +147,7 @@ public class register extends AppCompatActivity {
         String Email = text_email.getText().toString();
         String Password = text_passw.getText().toString();
         String RePassword = text_repassw.getText().toString();
-        String nama_foto = text_foto.getText().toString();
+        //String nama_foto = text_foto.getText().toString();
 
         if (UserName.isEmpty()) {
             valid = false;
@@ -196,13 +196,13 @@ public class register extends AppCompatActivity {
             }
         }
 
-        if (nama_foto.isEmpty()) {
+        /*if (nama_foto.isEmpty()) {
             valid = false;
             text_repassw.setError("Pilih Gambar");
         } else {
             valid = true;
             text_email.setError(null);
-        }
+        }*/
 
         return valid;
     }

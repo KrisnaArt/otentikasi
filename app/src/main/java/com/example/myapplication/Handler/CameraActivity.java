@@ -137,12 +137,12 @@ public class CameraActivity extends AppCompatActivity {
             }else{
                 a = "detect";
             }
-            File file = new File(Environment.getExternalStorageDirectory(),"skripsi");
+            File file = new File(Environment.getExternalStorageDirectory(),"faceRecog");
+            File file1 = new File(Environment.getExternalStorageDirectory()+"/faceRecog",a);
             file.mkdirs();
-            File file1 = new File(Environment.getExternalStorageDirectory(),a);
             file1.mkdirs();
             if(file1.exists()){
-                String path = Environment.getExternalStorageDirectory() + "/skripsi/"+ a +"/" + System.currentTimeMillis() + ".jpg";
+                String path = Environment.getExternalStorageDirectory() + "/faceRecog/"+ a +"/" + System.currentTimeMillis() + ".jpg";
                 File file3 = new File(path);
 
                 imgCap.takePicture(file3, new ImageCapture.OnImageSavedListener() {
